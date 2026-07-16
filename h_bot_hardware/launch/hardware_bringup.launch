@@ -1,0 +1,27 @@
+<launch>
+  <!-- 🦾 H-Bot Hardware Bringup — Act I: Feel the joints -->
+  <!--
+    Launches the hardware bridge node.
+
+    The bridge publishes sensor_msgs/JointState on /joint_states and listens
+    to sensor_msgs/JointState on /joint_commands.
+
+    If ROS is not installed, run the scripts directly in mock mode instead:
+      python3 $(find h_bot_hardware)/scripts/hardware_bridge.py
+      python3 $(find h_bot_hardware)/scripts/mock_hardware.py
+  -->
+
+  <!-- Optional parameter: print extra diagnostics to console. -->
+  <arg name="verbose" default="true" />
+
+  <node
+    name="h_bot_hardware_bridge"
+    pkg="h_bot_hardware"
+    type="hardware_bridge.py"
+    output="screen"
+    respawn="true"
+    respawn_delay="5">
+
+    <param name="~verbose" value="$(arg verbose)" />
+  </node>
+</launch>

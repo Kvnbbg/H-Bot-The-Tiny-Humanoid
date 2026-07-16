@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!--
+  H-Bot: The Tiny Humanoid — ROS package manifest.
+
+  This is a standard ROS Noetic catkin package.  If you do not have ROS
+  installed, you can still use the URDF and YAML files directly with
+  Python or other tools; this manifest is only needed for catkin builds.
+
+  Quick ROS Noetic install (Ubuntu 20.04):
+    sudo apt update
+    sudo apt install ros-noetic-desktop-full
+    echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
+    source /opt/ros/noetic/setup.bash
+-->
+<package format="2">
+  <name>h_bot_description</name>
+  <version>0.0.1</version>
+  <description>
+    URDF model and joint-to-actuator mapping for H-Bot, a tiny ROS-based
+    humanoid robot.  This package contains the robot description files
+    used by simulation, visualization, and hardware abstraction layers.
+  </description>
+
+  <maintainer email="116537485+Kvnbbg@users.noreply.github.com">Kevin Maeville</maintainer>
+  <license>Apache-2.0</license>
+
+  <url type="website">https://github.com/Kvnbbg/H-Bot-The-Tiny-Humanoid</url>
+  <url type="bugtracker">https://github.com/Kvnbbg/H-Bot-The-Tiny-Humanoid/issues</url>
+
+  <author email="116537485+Kvnbbg@users.noreply.github.com">Kevin Maeville</author>
+
+  <!-- Build system -->
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <!-- Runtime dependencies (used by tools that parse/process the description). -->
+  <exec_depend>urdf</exec_depend>
+  <exec_depend>xacro</exec_depend>
+  <exec_depend>joint_state_publisher_gui</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>rviz</exec_depend>
+
+  <export>
+    <!-- No additional plugins exported by this pure-description package. -->
+  </export>
+</package>

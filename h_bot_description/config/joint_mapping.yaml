@@ -1,0 +1,178 @@
+# H-Bot: The Tiny Humanoid — joint ↔ actuator mapping.
+#
+# This YAML maps every URDF joint name to a real (or simulated) actuator.
+# It is meant to be read by hardware abstraction nodes and calibration tools.
+# No ROS installation is required to edit this file; any YAML parser works.
+#
+# Fields:
+#   actuator_id   : integer ID used by your servo bus (e.g. Dynamixel ID).
+#   bus           : logical bus name (e.g. "serial:/dev/ttyUSB0", "can0", "sim").
+#   direction     : +1 or -1; flips the commanded sign to match mechanical mirror.
+#   offset        : radian offset added to the URDF command before sending.
+#   limits.min    : minimum joint position in radians (should match or be safer than URDF).
+#   limits.max    : maximum joint position in radians.
+#   limits.effort : maximum effort/torque in N·m (safe default for tiny servos).
+#   limits.velocity : maximum velocity in rad/s.
+#
+# NOTE: Update actuator_id, bus, and offset to match your actual hardware.
+
+joint_mapping:
+  head_pan:
+    actuator_id: 1
+    bus: "main"
+    direction: 1
+    offset: 0.0
+    limits:
+      min: -2.094
+      max: 2.094
+      effort: 0.5
+      velocity: 3.0
+
+  left_shoulder_pitch:
+    actuator_id: 2
+    bus: "main"
+    direction: 1
+    offset: 0.0
+    limits:
+      min: -1.571
+      max: 1.571
+      effort: 0.8
+      velocity: 3.0
+
+  left_elbow:
+    actuator_id: 3
+    bus: "main"
+    direction: 1
+    offset: 0.0
+    limits:
+      min: -2.094
+      max: 0.0
+      effort: 0.6
+      velocity: 3.0
+
+  right_shoulder_pitch:
+    actuator_id: 4
+    bus: "main"
+    direction: -1
+    offset: 0.0
+    limits:
+      min: -1.571
+      max: 1.571
+      effort: 0.8
+      velocity: 3.0
+
+  right_elbow:
+    actuator_id: 5
+    bus: "main"
+    direction: -1
+    offset: 0.0
+    limits:
+      min: -2.094
+      max: 0.0
+      effort: 0.6
+      velocity: 3.0
+
+  left_hip_yaw:
+    actuator_id: 6
+    bus: "main"
+    direction: 1
+    offset: 0.0
+    limits:
+      min: -0.785
+      max: 0.785
+      effort: 1.0
+      velocity: 3.0
+
+  left_hip_pitch:
+    actuator_id: 7
+    bus: "main"
+    direction: 1
+    offset: 0.0
+    limits:
+      min: -1.571
+      max: 1.571
+      effort: 1.0
+      velocity: 3.0
+
+  left_knee:
+    actuator_id: 8
+    bus: "main"
+    direction: 1
+    offset: 0.0
+    limits:
+      min: 0.0
+      max: 2.094
+      effort: 1.0
+      velocity: 3.0
+
+  left_ankle:
+    actuator_id: 9
+    bus: "main"
+    direction: 1
+    offset: 0.0
+    limits:
+      min: -0.785
+      max: 0.785
+      effort: 1.0
+      velocity: 3.0
+
+  right_hip_yaw:
+    actuator_id: 10
+    bus: "main"
+    direction: -1
+    offset: 0.0
+    limits:
+      min: -0.785
+      max: 0.785
+      effort: 1.0
+      velocity: 3.0
+
+  right_hip_pitch:
+    actuator_id: 11
+    bus: "main"
+    direction: -1
+    offset: 0.0
+    limits:
+      min: -1.571
+      max: 1.571
+      effort: 1.0
+      velocity: 3.0
+
+  right_knee:
+    actuator_id: 12
+    bus: "main"
+    direction: -1
+    offset: 0.0
+    limits:
+      min: 0.0
+      max: 2.094
+      effort: 1.0
+      velocity: 3.0
+
+  right_ankle:
+    actuator_id: 13
+    bus: "main"
+    direction: -1
+    offset: 0.0
+    limits:
+      min: -0.785
+      max: 0.785
+      effort: 1.0
+      velocity: 3.0
+
+# Safe defaults for startup / simulation.
+defaults:
+  position_home:
+    head_pan: 0.0
+    left_shoulder_pitch: 0.0
+    left_elbow: -0.5
+    right_shoulder_pitch: 0.0
+    right_elbow: -0.5
+    left_hip_yaw: 0.0
+    left_hip_pitch: 0.0
+    left_knee: 0.1
+    left_ankle: 0.0
+    right_hip_yaw: 0.0
+    right_hip_pitch: 0.0
+    right_knee: 0.1
+    right_ankle: 0.0

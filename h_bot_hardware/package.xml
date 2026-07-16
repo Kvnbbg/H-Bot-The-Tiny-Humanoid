@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<package format="2">
+  <!-- 🦾 H-Bot Hardware Bridge — Act I: Feel the joints -->
+  <name>h_bot_hardware</name>
+  <version>0.1.0</version>
+  <description>
+    Foundational hardware-software bridge for H-Bot. Publishes sensor_msgs/JointState
+    from real or mock actuators and listens to joint position commands.
+  </description>
+  <maintainer email="116537485+Kvnbbg@users.noreply.github.com">Kevin Maeville</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <!-- Runtime dependencies -->
+  <depend>rospy</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>trajectory_msgs</depend>
+
+  <!-- Python shebang helpers -->
+  <exec_depend>python3</exec_depend>
+
+  <export>
+    <!-- This is a plain ROS package; no plugins yet -->
+  </export>
+</package>

@@ -1,0 +1,16 @@
+# H-Bot Python dependencies
+#
+# Real ROS (Noetic) packages are normally installed via apt/rosdep.
+# The packages below are the pip-installable helpers that make ROS-based
+# Python tooling (rospy scripts, catkin, roslaunch checks) work smoothly.
+
+# ROS Python utilities (used by rospy tooling and workspace introspection)
+rospkg>=1.3.0
+pycryptodomex>=3.10.0
+catkin-pkg>=0.5.0
+
+# Configuration parsing used by launch files and parameter YAMLs
+pyyaml>=5.4
+
+# Standalone WebSocket bridge (runs without ROS for quick UI demos)
+websockets>=11.0

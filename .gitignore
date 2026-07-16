@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# ROS / catkin
+catkin_ws/
+catkin_generated/
+devel/
+build/
+install/
+logs/
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Local secrets / credentials
+.env
+.secrets
+*.pem
+*.key

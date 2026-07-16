@@ -97,13 +97,36 @@ _o_   \__/   _o_
     </div>
   </section>
 
-  <!-- Demos -->
-  <section id="demos" class="py-16 px-4 md:px-8 bg-gray-900">
-    <h2 class="text-4xl font-bold text-emerald-500 text-center">Demos</h2>
-    <div class="mt-8 text-center space-x-4">
-      <button id="gazebo-btn" class="px-6 py-3 bg-emerald-500 text-gray-900 rounded-lg hover-scale">Launch Gazebo Sandbox</button>
-      <button id="balance-btn" class="px-6 py-3 bg-blue-800 text-white rounded-lg hover-scale">Balance Demo</button>
-      <button id="neural-btn" class="px-6 py-3 bg-gray-600 text-white rounded-lg hover-scale">Neural Gait</button>
+  <!-- Live Telemetry & Control -->
+  <section id="telemetry" class="py-16 px-4 md:px-8 bg-gray-900">
+    <h2 class="text-4xl font-bold text-emerald-500 text-center">Live Telemetry</h2>
+
+    <!-- Connection status -->
+    <div class="mt-6 max-w-4xl mx-auto flex items-center justify-center gap-3">
+      <span id="connection-dot" class="w-4 h-4 rounded-full bg-red-500 inline-block"></span>
+      <span id="connection-status" class="text-gray-300 font-mono">Disconnected</span>
+      <span class="text-gray-500 text-sm">ws://localhost:8765</span>
+    </div>
+
+    <!-- Joint angles grid -->
+    <div class="mt-8 max-w-4xl mx-auto">
+      <h3 class="text-2xl text-blue-800 text-center">Joint Angles (rad)</h3>
+      <div id="joint-grid" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <!-- Filled dynamically by JavaScript -->
+      </div>
+    </div>
+
+    <!-- Command buttons -->
+    <div class="mt-10 max-w-4xl mx-auto text-center">
+      <h3 class="text-2xl text-blue-800 mb-4">Pose Commands</h3>
+      <div class="flex flex-wrap justify-center gap-4">
+        <button id="stand-btn" class="px-6 py-3 bg-emerald-500 text-gray-900 rounded-lg hover-scale">Stand Tall</button>
+        <button id="wave-btn" class="px-6 py-3 bg-blue-800 text-white rounded-lg hover-scale">Wave Hello</button>
+        <button id="step-btn" class="px-6 py-3 bg-gray-600 text-white rounded-lg hover-scale">Step Forward</button>
+      </div>
+      <p id="last-command" class="mt-4 text-gray-400 font-mono text-sm min-h-[1.5rem]">
+        Waiting for command...
+      </p>
     </div>
   </section>
 
@@ -210,16 +233,131 @@ _o_   \__/   _o_
       }
     });
 
-    // Button Interactions
-    document.getElementById('gazebo-btn').addEventListener('click', () => {
-      alert('Launch Gazebo Sandbox: Run `roslaunch h_bot_gazebo playground.launch` (requires ROS setup).');
+    // -----------------------------------------------------------------
+    // Live WebSocket bridge to H-Bot
+    // -----------------------------------------------------------------
+    const jointNames = [
+      'head_pan',
+      'left_shoulder_pitch',
+      'left_elbow',
+      'right_shoulder_pitch',
+      'right_elbow',
+      'left_hip_yaw',
+      'left_hip_pitch',
+      'left_knee',
+      'left_ankle',
+      'right_hip_yaw',
+      'right_hip_pitch',
+      'right_knee',
+      'right_ankle'
+    ];
+
+    const jointGrid = document.getElementById('joint-grid');
+    const connectionDot = document.getElementById('connection-dot');
+    const connectionStatus = document.getElementById('connection-status');
+    const lastCommand = document.getElementById('last-command');
+
+    // Build the joint-angle display cells once.
+    jointNames.forEach((name) => {
+      const card = document.createElement('div');
+      card.className = 'p-3 bg-gray-800 rounded-lg text-center';
+      card.innerHTML = `
+        <div class="text-xs text-gray-400 uppercase tracking-wide">${name}</div>
+        <div id="joint-${name}" class="text-xl font-mono text-emerald-400">0.000</div>
+      `;
+      jointGrid.appendChild(card);
     });
-    document.getElementById('balance-btn').addEventListener('click', () => {
-      alert('Start Balance Demo: Run `roslaunch h_bot_control zmp_balance.launch` (requires ROS setup).');
+
+    let socket = null;
+
+    function setConnected(isConnected) {
+      if (isConnected) {
+        connectionDot.classList.remove('bg-red-500', 'bg-yellow-500');
+        connectionDot.classList.add('bg-emerald-500');
+        connectionStatus.textContent = 'Connected';
+      } else {
+        connectionDot.classList.remove('bg-emerald-500', 'bg-yellow-500');
+        connectionDot.classList.add('bg-red-500');
+        connectionStatus.textContent = 'Disconnected';
+      }
+    }
+
+    function connectWebSocket() {
+      try {
+        socket = new WebSocket('ws://localhost:8765');
+      } catch (err) {
+        console.error('Failed to create WebSocket:', err);
+        setConnected(false);
+        return;
+      }
+
+      connectionDot.classList.remove('bg-red-500', 'bg-emerald-500');
+      connectionDot.classList.add('bg-yellow-500');
+      connectionStatus.textContent = 'Connecting...';
+
+      socket.addEventListener('open', () => {
+        console.log('H-Bot bridge connected');
+        setConnected(true);
+      });
+
+      socket.addEventListener('message', (event) => {
+        try {
+          const payload = JSON.parse(event.data);
+          if (payload.type === 'joint_states' && payload.joint_states) {
+            Object.entries(payload.joint_states).forEach(([name, value]) => {
+              const cell = document.getElementById(`joint-${name}`);
+              if (cell) {
+                cell.textContent = Number(value).toFixed(3);
+              }
+            });
+          } else if (payload.type === 'ack') {
+            lastCommand.textContent = `Ack: ${payload.command} -> ${JSON.stringify(payload.pose)}`;
+          } else if (payload.type === 'error') {
+            console.warn('Bridge error:', payload.message);
+          }
+        } catch (err) {
+          console.error('Failed to parse bridge message:', err);
+        }
+      });
+
+      socket.addEventListener('close', () => {
+        console.warn('H-Bot bridge disconnected, retrying in 3s...');
+        setConnected(false);
+        setTimeout(connectWebSocket, 3000);
+      });
+
+      socket.addEventListener('error', (err) => {
+        console.error('WebSocket error:', err);
+        setConnected(false);
+      });
+    }
+
+    function sendCommand(pose, label) {
+      if (!socket || socket.readyState !== WebSocket.OPEN) {
+        lastCommand.textContent = 'Not connected to H-Bot bridge yet.';
+        return;
+      }
+      const message = {
+        type: 'cmd_pose',
+        pose: pose
+      };
+      socket.send(JSON.stringify(message));
+      lastCommand.textContent = `Sent: ${label} -> ${JSON.stringify(pose)}`;
+    }
+
+    // Pose presets sent to /cmd_pose via the bridge.
+    document.getElementById('stand-btn').addEventListener('click', () => {
+      sendCommand({ x: 0.0, y: 0.0, z: 0.0, roll: 0.0, pitch: 0.0, yaw: 0.0 }, 'Stand Tall');
     });
-    document.getElementById('neural-btn').addEventListener('click', () => {
-      alert('Train Neural Gait: Run `python scripts/train_gait.py` (requires RL setup).');
+    document.getElementById('wave-btn').addEventListener('click', () => {
+      sendCommand({ x: 0.0, y: 0.0, z: 0.05, roll: 0.0, pitch: 0.0, yaw: 0.2 }, 'Wave Hello');
     });
+    document.getElementById('step-btn').addEventListener('click', () => {
+      sendCommand({ x: 0.05, y: 0.0, z: 0.0, roll: 0.0, pitch: 0.0, yaw: 0.0 }, 'Step Forward');
+    });
+
+    // Start the bridge connection when the page loads.
+    connectWebSocket();
   </script>
 </body>
 </html>
